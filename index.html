@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Cricket Score</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <table id="score-table">
+    <thead>
+      <tr>
+        <th>Match</th>
+        <th>Status</th>
+        <th>Teams</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <script>
+    const API_KEY = '2e670611-cd0e-41cf-8607-4db78fbeabaa'; // Replace with your actual API key
+    
+    // Function to fetch live cricket score
+    function fetchScore() {
+      fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${API_KEY}&offset=0`)
+        .then(response => response.json())
+        .then(data => {
+          const matches = data.data;
+          const tableBody = document.querySelector('#score-table tbody');
+          tableBody.innerHTML = ''; // Clear previous scores
+          
+          if (matches.length > 0) {
+            matches.forEach(match => {
+              const { name, status, teams, score } = match;
+              
+              // Create table row
+              const row = document.createElement('tr');
+              
+              const matchNameCell = document.createElement('td');
+              matchNameCell.innerText = name;
+              
+              const matchStatusCell = document.createElement('td');
+              matchStatusCell.innerText = status;
+              
+              const teamNamesCell = document.createElement('td');
+              teamNamesCell.innerText = teams.join(' vs ');
+              
+              const matchScoreCell = document.createElement('td');
+              matchScoreCell.innerText = score[0] ? score[0].inning : '';
+              
+              // Append cells to row
+              row.appendChild(matchNameCell);
+              row.appendChild(matchStatusCell);
+              row.appendChild(teamNamesCell);
+              row.appendChild(matchScoreCell);
+              
+              // Append row to table body
+              tableBody.appendChild(row);
+            });
+          } else {
+            const noMatchesRow = document.createElement('tr');
+            const noMatchesCell = document.createElement('td');
+            noMatchesCell.setAttribute('colspan', '4');
+            noMatchesCell.innerText = 'No live matches found.';
+            noMatchesRow.appendChild(noMatchesCell);
+            tableBody.appendChild(noMatchesRow);
+          }
+        })
+        .catch(error => {
+          console.log('Error:', error);
+        });
+    }
+    
+    // Call the fetchScore function every 10 seconds
+    setInterval(fetchScore, 10000);
+  </script>
+</body>
+</html>
